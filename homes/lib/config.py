@@ -79,22 +79,3 @@ class ConfigDict(dict):
         debug("filled configuration is: '%s'" % str(sections))
 
         self.update(sections)
-
-class ConfigurationError(Exception):
-
-    def __init__(self, file_name, section, key="", msg=""):
-        self.file_name = file_name
-        self.key = key
-        self.msg = msg
-
-    def __str__(self):
-        out = "Error in Configuration!\n"
-
-        if self.key:
-            out += "missing key: %s" % key
-        else:
-            out += "missing section: %s" % section
-        if msg:
-            out += "\n%s" % msg
-
-        return out

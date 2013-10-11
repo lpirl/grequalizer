@@ -1,8 +1,12 @@
+# encoding: utf-8
+
 from sys import argv
+from pwd import getpwall
 from inspect import getmembers, isclass
 from os.path import join as path_join, dirname
+
 from lib.util import debug
-from lib.config import ConfigDict, OptionsDict, ConfigurationError
+from lib.config import ConfigDict, OptionsDict
 import lib.checks as checks_module
 
 class HomesChecker():
@@ -10,12 +14,20 @@ class HomesChecker():
     Class for doing all the administrative work for checking users homes.
     """
 
+    homes_path = None
+    force_lowercase = None
+    limit_to_group = None
+    users = None
+    group_id = None
+    simulate = None
+    minimum_users_count = None
+
     configs = None
     configs_filename = path_join(
         dirname(argv[0]),"homes.conf"
     )
 
-    configs_section = 'main'
+    config_section = 'main'
 
     def __init__(self, config_file=None):
         """
@@ -29,17 +41,18 @@ class HomesChecker():
         Run all actions in the correct order. (Calls this from outside)
         """
         debug("started")
-        self.load_configs()
+        self._load_configs()
+        self._load_users()
         self.do_checks()
 
-    def load_configs(self, filename = None):
+    def _load_configs(self):
         """
         Coordinates loading of config.
         Seperates special sections.
         """
         configs = ConfigDict()
         configs.fill_from_file(
-            filename or self.configs_filename
+            self.configs_filename
         )
         self.configs = configs
         self._check_required_configs()
@@ -48,14 +61,23 @@ class HomesChecker():
         """
         Checks if all required configurations are present.
         """
-        options = self.configs[self.configs_section]
-        for key in ['homes_path', 'simulate']:
-            if not options[key]:
-                raise ConfigurationError(self.configs_filename, key)
+        options = self.configs[self.config_section]
 
-        # see if conversions work
-        options.get_str('homes_path')
-        options.get_bool('simulate')
+        required_fields = (
+            'homes_path',
+            'simulate',
+            'limit_to_primary_group',
+            'minimum_users_count',
+            'force_lowercase'
+        )
+
+        self.homes_path = options.get_str('homes_path')
+        self.force_lowercase = options.get_str('force_lowercase')
+        self.simulate = options.get_bool('simulate')
+        self.limit_to_group = options.get_bool('limit_to_primary_group')
+        if self.limit_to_group:
+            self.group_id = options.get_int('primary_group_id')
+        self.minimum_users_count = options.get_int('minimum_users_count')
 
     @classmethod
     def get_checks(cls):
@@ -70,6 +92,24 @@ class HomesChecker():
             ))
         return checks
 
+    def _load_users(self):
+        users = getpwall()
+        if self.limit_to_group:
+            users = [u for u in users if u.pw_gid == self.group_id]
+        if len(users) < self.minimum_users_count:
+            print("too few users found... check configuration", True)
+            exit(1)
+        self.users = users
+
+
     def do_checks(self):
-        for check in HomesChecker.get_checks():
-            print("would run", check)
+        for check_cls in HomesChecker.get_checks():
+            debug("doing check for %s" % str(check_cls))
+            check = check_cls(
+                self.homes_path,
+                self.force_lowercase,
+                self.users,
+                self.simulate,
+                self.configs[check_cls.config_section]
+            )
+            check.check()

@@ -2,6 +2,7 @@
 
 from sys import argv
 from pwd import getpwall
+from grp import getgrnam
 from inspect import getmembers, isclass
 from os.path import join as path_join, dirname
 
@@ -18,7 +19,7 @@ class HomesChecker():
     force_lowercase = None
     limit_to_group = None
     users = None
-    group_id = None
+    group = None
     simulate = None
     minimum_users_count = None
 
@@ -76,7 +77,7 @@ class HomesChecker():
         self.simulate = options.get_bool('simulate')
         self.limit_to_group = options.get_bool('limit_to_primary_group')
         if self.limit_to_group:
-            self.group_id = options.get_int('primary_group_id')
+            self.group = getgrnam(options.get_str('primary_group_name'))
         self.minimum_users_count = options.get_int('minimum_users_count')
 
     @classmethod
@@ -92,18 +93,32 @@ class HomesChecker():
             ))
         return checks
 
+    @classmethod
+    def get_checks_sorted(cls):
+        """
+        Sames as get_checks but checks are sorted,
+        starting with most important.
+        """
+        checks = cls.get_checks()
+        checks.sort(key=lambda check: check.order)
+        debug("sorted checks: %s" % str(
+                [s.__name__ for s in checks]
+            ))
+        return checks
+
     def _load_users(self):
         users = getpwall()
         if self.limit_to_group:
-            users = [u for u in users if u.pw_gid == self.group_id]
+            users = [u for u in users if u.pw_gid == self.group.gr_gid]
         if len(users) < self.minimum_users_count:
-            print("too few users found... check configuration", True)
+            print("too few users found... check configuration (got %u, need %u)" % (
+            len(users), self.minimum_users_count), True)
             exit(1)
         self.users = users
 
 
     def do_checks(self):
-        for check_cls in HomesChecker.get_checks():
+        for check_cls in HomesChecker.get_checks_sorted():
             debug("doing check for %s" % str(check_cls))
             check = check_cls(
                 self.homes_path,

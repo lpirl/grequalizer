@@ -34,12 +34,6 @@ class OptionsDict(dict):
             return False
         raise ValueError("Could not convert '%s' to boolean." % value)
 
-    def get_float(self, *args, **kwargs):
-        """
-        Returns requested value as int
-        """
-        return float(super(OptionsDict, self).get(*args, **kwargs))
-
     def get_str(self, *args, **kwargs):
         """
         Returns requested value as string

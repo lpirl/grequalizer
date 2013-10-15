@@ -89,7 +89,7 @@ class HomesChecker():
                         getmembers(checks_module, isclass) ]
         checks.remove(checks_module.BaseCheck)
         debug("found checks: %s" % str(
-                [s.__name__ for s in checks]
+                (s.__name__ for s in checks)
             ))
         return checks
 

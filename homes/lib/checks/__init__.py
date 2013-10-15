@@ -1,5 +1,7 @@
 from grp import getgrgid
 
+from lib.util import debug
+
 class BaseCheck:
     """
     Base class for all checks
@@ -113,6 +115,7 @@ class BaseCheck:
         homes..
         """
         if not self.options.get_bool('check'):
+            debug("check skipped: disabled in configuration")
             return
 
         correct = self.options.get_bool('correct')
@@ -120,7 +123,10 @@ class BaseCheck:
 
         for user in self.users:
             final_path = get_home_for_user(user)
-            if not self.is_correct_for_user(final_path, user) and correct:
+            if not self.is_correct_for_user(final_path, user):
+                if not correct:
+                    debug("correction skipped: disabled in configuration")
+                    continue
                 self.correct_for_user(final_path, user)
 
     def is_correct_for_user(self, user):

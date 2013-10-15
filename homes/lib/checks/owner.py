@@ -25,7 +25,7 @@ class OwnerCheck(BaseCheck):
         from configuration).
         """
         return getpwnam(
-            self.__class__._expand_string_for_user(
+            self.__class__.expand_string_for_user(
                 self.owner_unexpanded, user
             )
         ).pw_uid

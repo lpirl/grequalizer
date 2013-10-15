@@ -11,6 +11,8 @@ class ExistanceCheck(BaseCheck):
 
     config_section = "existance"
 
+    order = 100
+
     def correct_for_user(self, final_path, user):
         debug("creating directory for %s" % user.pw_name)
         self.execute_safely(mkdir, final_path, mode=700)

@@ -25,7 +25,7 @@ class GroupCheck(BaseCheck):
         from configuration).
         """
         return getgrnam(
-            self.__class__._expand_string_for_user(
+            self.__class__.expand_string_for_user(
                 self.group_unexpanded, user
             )
         ).gr_gid

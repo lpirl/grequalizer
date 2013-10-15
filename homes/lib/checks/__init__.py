@@ -68,7 +68,7 @@ class BaseCheck:
         return getgrgid(user.pw_gid).gr_name
 
     @classmethod
-    def _expand_string_for_user(cls, string, user):
+    def expand_string_for_user(cls, string, user):
         """
         Expands variables in string according to users.
         """
@@ -80,11 +80,11 @@ class BaseCheck:
                     "$g", cls.group_name_for_user(user)
                 )
 
-    def _get_home_for_user(self, user):
+    def get_home_for_user(self, user):
         """
         Expands variables in path to users home path.
         """
-        path = self.__class__._expand_string_for_user(
+        path = self.__class__.expand_string_for_user(
             self.homes_path, user)
         return path.lower() if self.force_lowercase else path
 
@@ -119,7 +119,7 @@ class BaseCheck:
             return
 
         correct = self.options.get_bool('correct')
-        get_home_for_user = self._get_home_for_user
+        get_home_for_user = self.get_home_for_user
 
         for user in self.users:
             final_path = get_home_for_user(user)
@@ -145,3 +145,4 @@ from .existance import ExistanceCheck
 from .permissions import PermissionCheck
 from .owner import OwnerCheck
 from .group import GroupCheck
+from .obsoletes import ObsoletesCheck

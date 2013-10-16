@@ -8,12 +8,12 @@ from lib import HomesChecker
 
 if __name__ == "__main__":
     if '--help' in argv or '-h' in argv:
-        print("homes - script for maintaining the existance of users home directories")
-        print("")
-        print("usage: [python3] ./homes.py [config file]")
-        print("  explicit call with 'python3' turns on debug")
-        print("  config file defaults to './homes.conf'")
-        print("    see this file for an example configuration")
+        log("homes - script for maintaining the existance of users home directories")
+        log("")
+        log("usage: [python3] ./homes.py [config file]")
+        log("  explicit call with 'python3' turns on debug")
+        log("  config file defaults to './homes.conf'")
+        log("    see this file for an example configuration")
         exit(0)
     try:
         checker = HomesChecker(argv[1])

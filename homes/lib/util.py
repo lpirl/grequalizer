@@ -15,3 +15,10 @@ def debug(msg):
     if __debug__:
         depth = len(stack()) - 3
         print(' '*depth, msg)
+
+def log(msg):
+    """
+    Since this script is used in cron and cron sends mails if there is
+    stdout, we print ordinarily.
+    """
+    print(msg)

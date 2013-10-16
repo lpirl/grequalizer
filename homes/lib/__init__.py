@@ -6,7 +6,7 @@ from grp import getgrnam
 from inspect import getmembers, isclass
 from os.path import join as path_join, dirname
 
-from lib.util import debug
+from lib.util import debug, log
 from lib.config import ConfigDict, OptionsDict
 import lib.checks as checks_module
 
@@ -107,7 +107,7 @@ class HomesChecker():
         if self.limit_to_group:
             users = [u for u in users if u.pw_gid == self.group.gr_gid]
         if len(users) < self.minimum_users_count:
-            print("too few users found... check configuration (got %u, need %u)" % (
+            log("too few users found... check configuration (got %u, need %u)" % (
             len(users), self.minimum_users_count), True)
             exit(1)
         self.users = users

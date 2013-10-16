@@ -17,14 +17,14 @@ class ExistanceCheck(AbstractAllUsersAndAllDirectoriesCheck):
         Returns a set of obsolete directories.
         """
         existing_directories = set(directories)
-        users_directories = set(selg.get_home_for_user(u) for u in users)
+        users_directories = set(self.get_home_for_user(u) for u in users)
         return users_directories - existing_directories
 
     def correct(self, users, directories):
         for directory in self.missing_directories(users, directories):
             debug("creating missing directory '%s'" % directory)
-            self.execute_safely(mkdir, final_path, mode=700)
+            self.execute_safely(mkdir, directory, mode=700)
 
     def is_correct(self, users, directories):
         debug("checking for missing directories")
-        return self.missing_directories(users, directories) == set()
+        return not bool(self.missing_directories(users, directories))

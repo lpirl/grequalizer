@@ -4,7 +4,7 @@ from os.path import join as path_join
 
 from grp import getgrgid
 
-from lib.util import debug
+from lib.util import debug, log
 
 class AbstractCheckBase(metaclass=abc.ABCMeta):
     """
@@ -99,12 +99,23 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
         Method prints what would be done if simulating or
         does it otherwise.
         """
+        def call_as_pretty_string():
+            return "%s.%s(%s, %s)" % (
+                function.__module__,
+                function.__name__,
+                ', '.join((repr(arg) for arg in args)),
+                ', '.join(( "%s=%s" % (repr(k), repr(v))
+                            for k, v in kwargs.items())),
+            )
+
         if self.simulate:
-            print("simulating - would execute %s with args %s and kwargs %s otherwise" % (
-                str(function), str(args), str(kwargs)
+            log("simulating - would execute %s otherwise" % (
+                call_as_pretty_string()
             ))
+            return None
         else:
-            raise NotImplementedError()
+            log("executing " + call_as_pretty_string())
+            return function(*args, **kwargs)
 
     def check(self):
         """
@@ -169,7 +180,8 @@ class AbstractPerDirectoryCheck(AbstractCheckBase):
 
         for _, directory_names, _ in walk(base_homes_path):
             return (path_join(base_homes_path, name)
-                    for name in directory_names)
+                        for name in directory_names)
+
 
     def _check(self):
         """
@@ -243,13 +255,15 @@ class AbstractAllUsersAndAllDirectoriesCheck(AbstractPerDirectoryCheck):
         Checks correctness and corrects if configured using iterables of
         all users and existing directories.
         """
-        directories = self.get_existing_directories()
+        directories = list(self.get_existing_directories())
+        users = self.users
 
-        if not self.is_correct(self.users, directories):
+        if not self.is_correct(users, directories):
+            debug("correction required")
             if not self.options.get_bool('correct'):
                 debug("correction skipped: disabled in configuration")
                 return
-            self.correct(self.users, directories)
+            self.correct(users, directories)
 
     @abc.abstractmethod
     def is_correct(self, users, directories):

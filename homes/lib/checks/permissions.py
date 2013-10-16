@@ -1,10 +1,10 @@
 from os import stat, chmod
 from os.path import isdir
 
-from lib.checks import BaseCheck
+from lib.checks import AbstractPerUserCheck
 from lib.util import debug
 
-class PermissionCheck(BaseCheck):
+class PermissionCheck(AbstractPerUserCheck):
     """
     Checks the homes for all users for desired permissions.
     """
@@ -25,18 +25,20 @@ class PermissionCheck(BaseCheck):
         """
         return int(oct(stat(path).st_mode)[-3:])
 
-    def correct_for_user(self, final_path, user):
+    def correct(self, user):
+        home_path = self.get_home_for_user(user)
         debug("setting permissions for %s to %i" % (
-            final_path, self.octal_permissions))
-        if not isdir(final_path):
+            home_path, self.octal_permissions))
+        if not isdir(home_path):
             debug("...directory does not exist. Doing nothing.")
             return
-        self.execute_safely(chmod, final_path, self.octal_permissions)
+        self.execute_safely(chmod, home_path, self.octal_permissions)
 
-    def is_correct_for_user(self, final_path, user):
+    def is_correct(self, user):
         debug("checking directory permissions for %s" % user.pw_name)
-        if not isdir(final_path):
+        home_path = self.get_home_for_user(user)
+        if not isdir(home_path):
             debug("...directory does not exist. Ignoring.")
             return True
-        current = self.__class__.octal_permissions_for_path(final_path)
+        current = self.__class__.octal_permissions_for_path(home_path)
         return current == self.octal_permissions

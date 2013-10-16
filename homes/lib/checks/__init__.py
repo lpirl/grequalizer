@@ -1,8 +1,12 @@
+import abc
+from os import walk
+from os.path import join as path_join
+
 from grp import getgrgid
 
 from lib.util import debug
 
-class BaseCheck:
+class AbstractCheckBase(metaclass=abc.ABCMeta):
     """
     Base class for all checks
     """
@@ -23,6 +27,12 @@ class BaseCheck:
     All options from section defined in attribute 'config_section'.
     """
     options = None
+
+    """
+    If true, everything will be checked and created after the home path
+    for a user was converted to lowercase.
+    """
+    force_lowercase = None
 
     """
     Order when this check should be executed.
@@ -46,19 +56,6 @@ class BaseCheck:
         So that they do not need to override __init__.
         """
         pass
-
-    @classmethod
-    def _raise_subclass_error(cls, attr_type, attr_name):
-        """
-        Method provides unified "help" for implementing the interface.
-        """
-        raise NotImplementedError(
-            "Subclass %s must provide %s '%s'" % (
-                cls.__name__,
-                attr_type,
-                attr_name
-            )
-        )
 
     @classmethod
     def group_name_for_user(cls, user):
@@ -88,14 +85,14 @@ class BaseCheck:
             self.homes_path, user)
         return path.lower() if self.force_lowercase else path
 
-    @property
+    @abc.abstractproperty
     def config_section(self):
         """
         Defines which section in the configuration belongs to this check.
 
         Name clashes are to be avoided ;)
         """
-        self.__class__._raise_subclass_error('property', 'config_section')
+        pass
 
     def execute_safely(self, function, *args, **kwargs):
         """
@@ -111,35 +108,162 @@ class BaseCheck:
 
     def check(self):
         """
-        Executes (eventually) check and (eventually) corrections for all user's
-        homes..
+        Executes all checks according to configuration.
         """
         if not self.options.get_bool('check'):
             debug("check skipped: disabled in configuration")
             return
+        self._check()
 
-        correct = self.options.get_bool('correct')
-        get_home_for_user = self.get_home_for_user
+    @abc.abstractmethod
+    def _check(self):
+        """
+        Actually implements iteration over objects to check
 
-        for user in self.users:
-            final_path = get_home_for_user(user)
-            if not self.is_correct_for_user(final_path, user):
-                if not correct:
+        (directories, users, …)
+        """
+        pass
+
+class AbstractPerDirectoryCheck(AbstractCheckBase):
+    """
+    Executes checks per existing directory in homes path.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Additionally, ensured precondition for this check method to work.
+        """
+        super(AbstractPerDirectoryCheck, self).__init__(*args, **kwargs)
+        self.check_homes_path()
+
+    def check_homes_path(self):
+        """
+        Checks if the homes_path is compatible with this implementation.
+
+        Future implementations may support a wider variety of directory
+        structures - feel free to improve. :)
+        """
+        def homes_path_fail():
+            ValueError(
+                "Sorry, at the moment checks for obsolete " +
+                "diretories can only be done for home_path's " +
+                "in the following form: /path/to/somewhere/$u"
+            )
+
+        homes_path = self.homes_path
+
+        if not (homes_path.endswith('$u') or homes_path.endswith('$u/')):
+            homes_path_fail()
+
+        if "$g" in homes_path or "$h" in homes_path:
+            homes_path_fail()
+
+    def get_existing_directories(self):
+        """
+        Collects a set of all existing directories in the homes_path.
+        """
+        base_homes_path = self.homes_path.replace("$u", "")
+
+        assert "$h" not in base_homes_path
+        assert "$g" not in base_homes_path
+
+        for _, directory_names, _ in walk(base_homes_path):
+            return (path_join(base_homes_path, name)
+                    for name in directory_names)
+
+    def _check(self):
+        """
+        For every existing home directory, check if it's correct and
+        correct if required and configured.
+        """
+        for directory in self.get_existing_directories():
+            if not self.is_correct(directory):
+                if not self.options.get_bool('correct'):
                     debug("correction skipped: disabled in configuration")
                     continue
-                self.correct_for_user(final_path, user)
+                self.correct(directory)
 
-    def is_correct_for_user(self, user):
+    @abc.abstractmethod
+    def is_correct(self, directory):
         """
-        Checks correctness for a single users home.
+        Checks correctness for a single user home directory.
         """
-        self.__class__._raise_subclass_error('method', 'check_for_user')
+        pass
 
-    def correct_for_user(self, user):
+    @abc.abstractmethod
+    def correct(self, directory):
         """
-        Corrects a single users home.
+        Corrects a users home directory.
         """
-        self.__class__._raise_subclass_error('method', 'correct_for_user')
+        pass
+
+class AbstractPerUserCheck(AbstractCheckBase):
+    """
+    Executes checks per existing user.
+    """
+
+    def _check(self):
+        """
+        For every user, check if home correct and correct if required
+        and configured.
+        """
+        for user in self.users:
+            if not self.is_correct(user):
+                if not self.options.get_bool('correct'):
+                    debug("correction skipped: disabled in configuration")
+                    continue
+                self.correct(user)
+
+    @abc.abstractmethod
+    def is_correct(self, user):
+        """
+        Checks correctness for a single user home directory.
+        """
+        pass
+
+    @abc.abstractmethod
+    def correct(self, user):
+        """
+        Corrects a users home directory.
+        """
+        pass
+
+class AbstractAllUsersAndAllDirectoriesCheck(AbstractPerDirectoryCheck):
+    """
+    Somehow a hybrid from per user and per directory checks.
+
+    Checks and corrections get handed a iterable of users and existing
+    directories.
+
+    Might be memory intensive in large setups.
+    """
+
+    def _check(self):
+        """
+        Checks correctness and corrects if configured using iterables of
+        all users and existing directories.
+        """
+        directories = self.get_existing_directories()
+
+        if not self.is_correct(self.users, directories):
+            if not self.options.get_bool('correct'):
+                debug("correction skipped: disabled in configuration")
+                return
+            self.correct(self.users, directories)
+
+    @abc.abstractmethod
+    def is_correct(self, users, directories):
+        """
+        Checks correctness with a list of users and directories.
+        """
+        pass
+
+    @abc.abstractmethod
+    def correct(self, users, directories):
+        """
+        Corrects home directory for a list of users and directories..
+        """
+        pass
 
 from .existance import ExistanceCheck
 from .permissions import PermissionCheck

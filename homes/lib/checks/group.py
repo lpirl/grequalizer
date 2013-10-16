@@ -2,10 +2,10 @@ from os import stat, chown
 from os.path import isdir
 from grp import getgrnam
 
-from lib.checks import BaseCheck
+from lib.checks import AbstractPerUserCheck
 from lib.util import debug
 
-class GroupCheck(BaseCheck):
+class GroupCheck(AbstractPerUserCheck):
     """
     Checks the homes for all users for desired group.
     """
@@ -37,22 +37,24 @@ class GroupCheck(BaseCheck):
         """
         return stat(path).st_gid
 
-    def correct_for_user(self, final_path, user):
-        debug("setting group for %s to %s" % (final_path, user.pw_name))
-        if not isdir(final_path):
+    def correct(self, user):
+        home_path = self.get_home_for_user(user)
+        debug("setting group for %s to %s" % (home_path, user.pw_name))
+        if not isdir(home_path):
             debug("...directory does not exist. Doing nothing.")
             return
         self.execute_safely(
             chown,
-            final_path,
+            home_path,
             -1,
             self.group_uid_for_user(user)
         )
 
-    def is_correct_for_user(self, final_path, user):
+    def is_correct(self, user):
+        home_path = self.get_home_for_user(user)
         debug("checking directory group for %s" % user.pw_name)
-        if not isdir(final_path):
+        if not isdir(home_path):
             debug("...directory does not exist. Ignoring.")
             return True
-        current_gid = self.__class__.group_uid_for_path(final_path)
+        current_gid = self.__class__.group_uid_for_path(home_path)
         return current_gid == self.group_uid_for_user(user)

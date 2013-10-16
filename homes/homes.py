@@ -4,7 +4,7 @@ This moduly mainly provides CLI interface.
 """
 
 from sys import argv
-from lib.main import HomesChecker
+from lib import HomesChecker
 
 if __name__ == "__main__":
     if '--help' in argv or '-h' in argv:

@@ -2,7 +2,7 @@
 
 from os import chmod
 from os.path import isfile, basename, dirname, join as path_join
-from shutil import make_archive
+from shutil import make_archive, rmtree
 from lib.checks import AbstractAllUsersAndAllDirectoriesCheck
 from lib.util import debug, log
 
@@ -75,6 +75,10 @@ class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
             self.execute_safely(    chmod,
                                     archive_path,
                                     self.octal_permissions)
+            self.execute_safely(    rmtree,
+                                    directory_path,
+                                    ignore_errors=True)
+
         else:
             log(u"ERROR: something apparently went wrong - no archive " +
                 "file name found after archive creation!")

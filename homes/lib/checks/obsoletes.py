@@ -73,7 +73,7 @@ class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
         )
         if archive_path:
             self.execute_safely(    chmod,
-                                    trash_file_path,
+                                    archive_path,
                                     self.octal_permissions)
         else:
             log(u"ERROR: something apparently went wrong - no archive " +

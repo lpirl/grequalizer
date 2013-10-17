@@ -29,21 +29,14 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
     options = None
 
     """
-    If true, everything will be checked and created after the home path
-    for a user was converted to lowercase.
-    """
-    force_lowercase = None
-
-    """
     Order when this check should be executed.
 
     Lower numbers are executed earlier.
     """
     order = 1000
 
-    def __init__(self, homes_path, force_lowercase, users, simulate, options):
+    def __init__(self, homes_path, users, simulate, options):
         self.homes_path = homes_path
-        self.force_lowercase = force_lowercase
         self.users = users
         self.simulate = simulate
         self.options = options
@@ -81,9 +74,10 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
         """
         Expands variables in path to users home path.
         """
-        path = self.__class__.expand_string_for_user(
-            self.homes_path, user)
-        return path.lower() if self.force_lowercase else path
+        return self.__class__.expand_string_for_user(
+            self.homes_path,
+            user
+        )
 
     @abc.abstractproperty
     def config_section(self):

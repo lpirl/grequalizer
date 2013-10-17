@@ -16,7 +16,6 @@ class HomesChecker():
     """
 
     homes_path = None
-    force_lowercase = None
     limit_to_group = None
     users = None
     group = None
@@ -69,11 +68,9 @@ class HomesChecker():
             'simulate',
             'limit_to_primary_group',
             'minimum_users_count',
-            'force_lowercase'
         )
 
         self.homes_path = options.get_str('homes_path')
-        self.force_lowercase = options.get_str('force_lowercase')
         self.simulate = options.get_bool('simulate')
         self.limit_to_group = options.get_bool('limit_to_primary_group')
         if self.limit_to_group:
@@ -118,7 +115,6 @@ class HomesChecker():
             debug("doing check for %s" % str(check_cls))
             check = check_cls(
                 self.homes_path,
-                self.force_lowercase,
                 self.users,
                 self.simulate,
                 self.configs[check_cls.config_section]

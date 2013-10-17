@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from os import chmod
+from os import chmod, listdir
 from os.path import isfile, basename, dirname, join as path_join
 from shutil import make_archive, rmtree
 from lib.checks import AbstractAllUsersAndAllDirectoriesCheck
@@ -48,6 +48,9 @@ class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
             self.do_trash_directory(directory_path)
 
     def trash_file_path(self, directory_path, suffix_number=0):
+        """
+        Assembles & returns the path of the trash file.
+        """
         candidate = path_join(self.trash_path, basename(directory_path))
 
         if suffix_number:
@@ -58,12 +61,13 @@ class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
         else:
             return candidate
 
-    def do_trash_directory(self, directory_path):
+    def do_archive_directory(self, directory_path):
         """
-        Moves directory to trash.
+        Archives directory contents to trash if not empty.
+
+        Returns True on success, False otherwise
         """
         trash_file_path = self.trash_file_path(directory_path)
-        debug("trashing directory '%s'" % directory_path)
         archive_path = self.execute_safely(
             make_archive,
             trash_file_path,
@@ -71,14 +75,29 @@ class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
             dirname(directory_path),
             basename(directory_path)
         )
-        if archive_path:
-            self.execute_safely(    chmod,
-                                    archive_path,
-                                    self.octal_permissions)
-            self.execute_safely(    rmtree,
-                                    directory_path,
-                                    ignore_errors=True)
 
-        else:
-            log(u"ERROR: something apparently went wrong - no archive " +
+        if not archive_path:
+            log(u"ERROR: something went wrong - no archive " +
                 "file name found after archive creation!")
+            return False
+
+        self.execute_safely(    chmod,
+                                archive_path,
+                                self.octal_permissions)
+        return True
+
+    def do_trash_directory(self, directory_path):
+        """
+        Moves directory to trash.
+        """
+        if listdir(directory_path):
+            debug("archiving directory '%s'" % directory_path)
+            if not self.do_archive_directory(directory_path):
+                return
+        else:
+            debug("not archiving empty directory '%s'" % directory_path)
+
+        debug("deleting directory '%s'" % directory_path)
+        self.execute_safely(    rmtree,
+                                directory_path,
+                                ignore_errors=True)

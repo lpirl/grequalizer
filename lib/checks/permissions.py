@@ -34,4 +34,4 @@ class PermissionCheck(AbstractPerUserCheck):
         if not isdir(home_path):
             debug("...directory does not exist. Ignoring.")
             return True
-        return S_IMODE(stat(path).st_mode) == self.permissions
+        return S_IMODE(stat(home_path).st_mode) == self.permissions

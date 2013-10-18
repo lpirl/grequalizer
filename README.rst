@@ -28,8 +28,8 @@ usage
 #. Check out the repository
 #. Read and adapt ``homes.conf`` carefully
 
-    (for easier updating, put your modified configuration to a separate
-    file)
+    for easier updating, put your modified configuration to a separate
+    file
 
 #. Backup
 #. In your configuration, set ``simulate = yes``
@@ -43,6 +43,7 @@ usage
     ``42 23 * * * python3.3 -O /wherever/homes/homes.py /wherever/homes/your_configuration.conf``
 
     or, if you are not willing to receive mails with what has been done:
+    
     ``42 23 * * * (python3.3 -O /wherever/homes/homes.py /wherever/homes/your_configuration.conf) > /dev/null``
 
 contact…

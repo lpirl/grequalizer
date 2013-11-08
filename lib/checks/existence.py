@@ -3,12 +3,12 @@ from os import mkdir
 from lib.checks import AbstractAllUsersAndAllDirectoriesCheck
 from lib.util import debug
 
-class ExistanceCheck(AbstractAllUsersAndAllDirectoriesCheck):
+class ExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
     """
     Checks if a home for every user exists.
     """
 
-    config_section = "existance"
+    config_section = "existence"
 
     order = 100
 

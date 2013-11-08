@@ -273,7 +273,7 @@ class AbstractAllUsersAndAllDirectoriesCheck(AbstractPerDirectoryCheck):
         """
         pass
 
-from .existance import ExistanceCheck
+from .existence import ExistenceCheck
 from .permissions import PermissionCheck
 from .owner import OwnerCheck
 from .group import GroupCheck

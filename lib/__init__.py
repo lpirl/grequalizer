@@ -15,7 +15,7 @@ class HomesChecker():
     Class for doing all the administrative work for checking users homes.
     """
 
-    homes_path = None
+    chroot_path = None
     limit_to_group = None
     users = None
     group = None
@@ -64,13 +64,13 @@ class HomesChecker():
         options = self.configs[self.config_section]
 
         required_fields = (
-            'homes_path',
+            'chroot_path',
             'simulate',
             'limit_to_primary_group',
             'minimum_users_count',
         )
 
-        self.homes_path = options.get_str('homes_path')
+        self.chroot_path = options.get_str('chroot_path')
         self.simulate = options.get_bool('simulate')
         self.limit_to_group = options.get_bool('limit_to_primary_group')
         if self.limit_to_group:
@@ -114,7 +114,7 @@ class HomesChecker():
         for check_cls in HomesChecker.get_checks_sorted():
             debug("doing check for %s" % str(check_cls))
             check = check_cls(
-                self.homes_path,
+                self.chroot_path,
                 self.users,
                 self.simulate,
                 self.configs[check_cls.config_section]

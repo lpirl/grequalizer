@@ -14,7 +14,7 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
     """
     Path to users home directory, not expanded yet.
     """
-    homes_path = None
+    chroot_path = None
 
     """
     If True, nothing should ever be done.
@@ -35,8 +35,8 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
     """
     order = 1000
 
-    def __init__(self, homes_path, users, simulate, options):
-        self.homes_path = homes_path
+    def __init__(self, chroot_path, users, simulate, options):
+        self.chroot_path = chroot_path
         self.users = users
         self.simulate = simulate
         self.options = options
@@ -75,7 +75,7 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
         Expands variables in path to users home path.
         """
         return self.__class__.expand_string_for_user(
-            self.homes_path,
+            self.chroot_path,
             user
         )
 
@@ -139,41 +139,41 @@ class AbstractPerDirectoryCheck(AbstractCheckBase):
         Additionally, ensured precondition for this check method to work.
         """
         super(AbstractPerDirectoryCheck, self).__init__(*args, **kwargs)
-        self.check_homes_path()
+        self.check_chroot_path()
 
-    def check_homes_path(self):
+    def check_chroot_path(self):
         """
-        Checks if the homes_path is compatible with this implementation.
+        Checks if the chroot_path is compatible with this implementation.
 
         Future implementations may support a wider variety of directory
         structures - feel free to improve. :)
         """
-        def homes_path_fail():
+        def chroot_path_fail():
             ValueError(
                 "Sorry, at the moment checks for obsolete " +
                 "diretories can only be done for home_path's " +
                 "in the following form: /path/to/somewhere/$u"
             )
 
-        homes_path = self.homes_path
+        chroot_path = self.chroot_path
 
-        if not (homes_path.endswith('$u') or homes_path.endswith('$u/')):
-            homes_path_fail()
+        if not (chroot_path.endswith('$u') or chroot_path.endswith('$u/')):
+            chroot_path_fail()
 
-        if "$g" in homes_path or "$h" in homes_path:
-            homes_path_fail()
+        if "$g" in chroot_path or "$h" in chroot_path:
+            chroot_path_fail()
 
     def get_existing_directories(self):
         """
-        Collects a set of all existing directories in the homes_path.
+        Collects a set of all existing directories in the chroot_path.
         """
-        base_homes_path = self.homes_path.replace("$u", "")
+        base_chroot_path = self.chroot_path.replace("$u", "")
 
-        assert "$h" not in base_homes_path
-        assert "$g" not in base_homes_path
+        assert "$h" not in base_chroot_path
+        assert "$g" not in base_chroot_path
 
-        for _, directory_names, _ in walk(base_homes_path):
-            return (path_join(base_homes_path, name)
+        for _, directory_names, _ in walk(base_chroot_path):
+            return (path_join(base_chroot_path, name)
                         for name in directory_names)
 
 

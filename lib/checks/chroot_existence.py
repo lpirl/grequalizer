@@ -3,7 +3,7 @@ from os import mkdir
 from lib.checks import AbstractAllUsersAndAllDirectoriesCheck
 from lib.util import debug
 
-class ExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
+class ChrootExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
     """
     Checks if a chroot directory for every user exists.
     """

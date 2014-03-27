@@ -273,8 +273,8 @@ class AbstractAllUsersAndAllDirectoriesCheck(AbstractPerDirectoryCheck):
         """
         pass
 
-from .existence import ExistenceCheck
-from .permissions import PermissionCheck
-from .owner import OwnerCheck
-from .group import GroupCheck
-from .obsoletes import ObsoletesCheck
+from .chroot_existence import ChrootExistenceCheck
+from .chroot_permissions import ChrootPermissionCheck
+from .chroot_owner import ChrootOwnerCheck
+from .chroot_group import ChrootGroupCheck
+from .obsolete_chroots import ObsoleteChrootsCheck

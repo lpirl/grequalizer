@@ -1,60 +1,60 @@
 from os import stat, chown
 from os.path import isdir
-from pwd import getpwnam
+from grp import getgrnam
 
 from lib.checks import AbstractPerUserCheck
 from lib.util import debug
 
-class OwnerCheck(AbstractPerUserCheck):
+class ChrootGroupCheck(AbstractPerUserCheck):
     """
-    Checks the chroot directories for all users for desired owner.
+    Checks the chroot directories for all users for desired group.
     """
 
-    config_section = "owner"
-    owner_unexpanded = None
+    config_section = "group"
+    group_unexpanded = None
 
     def post_init(self):
         """
         Stores some options as property for faster access.
         """
-        self.owner_unexpanded = self.options.get_str('owner')
+        self.group_unexpanded = self.options.get_str('group')
 
-    def owner_uid_for_user(self, user):
+    def group_uid_for_user(self, user):
         """
-        Returns the desired owner for a certain user (expands variables
+        Returns the desired group for a certain user (expands variables
         from configuration).
         """
-        return getpwnam(
+        return getgrnam(
             self.__class__.expand_string_for_user(
-                self.owner_unexpanded, user
+                self.group_unexpanded, user
             )
-        ).pw_uid
+        ).gr_gid
 
     @classmethod
-    def owner_uid_for_path(self, path):
+    def group_uid_for_path(self, path):
         """
-        Returns owner for a path
+        Returns group for a path
         """
-        return stat(path).st_uid
+        return stat(path).st_gid
 
     def correct(self, user):
         chroot_path = self.get_chroot_for_user(user)
-        debug("setting owner for %s to %s" % (chroot_path, user.pw_name))
+        debug("setting group for %s to %s" % (chroot_path, user.pw_name))
         if not isdir(chroot_path):
             debug("...directory does not exist. Doing nothing.")
             return
         self.execute_safely(
             chown,
             chroot_path,
-            self.owner_uid_for_user(user),
-            -1
+            -1,
+            self.group_uid_for_user(user)
         )
 
     def is_correct(self, user):
         chroot_path = self.get_chroot_for_user(user)
-        debug("checking directory owner for %s" % user.pw_name)
+        debug("checking directory group for %s" % user.pw_name)
         if not isdir(chroot_path):
             debug("...directory does not exist. Ignoring.")
             return True
-        current_uid = self.__class__.owner_uid_for_path(chroot_path)
-        return current_uid == self.owner_uid_for_user(user)
+        current_gid = self.__class__.group_uid_for_path(chroot_path)
+        return current_gid == self.group_uid_for_user(user)

@@ -5,7 +5,7 @@ from os.path import isdir
 from lib.checks import AbstractPerUserCheck
 from lib.util import debug
 
-class PermissionCheck(AbstractPerUserCheck):
+class ChrootPermissionCheck(AbstractPerUserCheck):
     """
     Checks the chroot directories for all users for desired permissions.
     """

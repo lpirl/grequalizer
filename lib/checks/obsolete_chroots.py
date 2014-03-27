@@ -6,7 +6,7 @@ from shutil import make_archive, rmtree
 from lib.checks import AbstractAllUsersAndAllDirectoriesCheck
 from lib.util import debug, log
 
-class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
+class ObsoleteChrootsCheck(AbstractAllUsersAndAllDirectoriesCheck):
     """
     Checks if there are chroot directories that do not belong to a user anymore.
     """

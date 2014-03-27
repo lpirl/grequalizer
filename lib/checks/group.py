@@ -7,7 +7,7 @@ from lib.util import debug
 
 class GroupCheck(AbstractPerUserCheck):
     """
-    Checks the homes for all users for desired group.
+    Checks the chroot directories for all users for desired group.
     """
 
     config_section = "group"

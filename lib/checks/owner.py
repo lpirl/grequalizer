@@ -7,7 +7,7 @@ from lib.util import debug
 
 class OwnerCheck(AbstractPerUserCheck):
     """
-    Checks the homes for all users for desired owner.
+    Checks the chroot directories for all users for desired owner.
     """
 
     config_section = "owner"

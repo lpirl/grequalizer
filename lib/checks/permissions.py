@@ -7,7 +7,7 @@ from lib.util import debug
 
 class PermissionCheck(AbstractPerUserCheck):
     """
-    Checks the homes for all users for desired permissions.
+    Checks the chroot directories for all users for desired permissions.
     """
 
     config_section = "permissions"

@@ -5,7 +5,7 @@ from lib.util import debug
 
 class ExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
     """
-    Checks if a home for every user exists.
+    Checks if a chroot directory for every user exists.
     """
 
     config_section = "existence"

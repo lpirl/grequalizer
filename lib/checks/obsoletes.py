@@ -8,7 +8,7 @@ from lib.util import debug, log
 
 class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
     """
-    Checks if there are homes that do not belong to a user anymore.
+    Checks if there are chroot directories that do not belong to a user anymore.
     """
 
     config_section = "obsoletes"
@@ -41,7 +41,7 @@ class ObsoletesCheck(AbstractAllUsersAndAllDirectoriesCheck):
 
     def correct(self, users, directories):
         """
-        Corrects home directory for a list of users and directories..
+        Corrects chroot directory for a list of users and directories..
         """
         obsoletes = self.obsolete_directories(users, directories)
         for directory_path in obsoletes:

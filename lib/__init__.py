@@ -10,7 +10,7 @@ from lib.util import debug, log
 from lib.config import ConfigDict, OptionsDict
 import lib.checks as checks_module
 
-class HomesChecker():
+class ChecksRunner():
     """
     Class for doing all the administrative work for checking users homes.
     """
@@ -111,7 +111,7 @@ class HomesChecker():
 
 
     def do_checks(self):
-        for check_cls in HomesChecker.get_checks_sorted():
+        for check_cls in ChecksRunner.get_checks_sorted():
             debug("doing check for %s" % str(check_cls))
             check = check_cls(
                 self.chroot_path,

@@ -249,7 +249,7 @@ class AbstractAllUsersAndAllDirectoriesCheck(AbstractPerDirectoryCheck):
         Checks correctness and corrects if configured using iterables of
         all users and existing directories.
         """
-        directories = list(self.get_existing_directories())
+        directories = list(self.get_existing_directories() or [])
         users = self.users
 
         if not self.is_correct(users, directories):

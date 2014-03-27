@@ -24,7 +24,7 @@ class HomesChecker():
 
     configs = None
     configs_filename = path_join(
-        dirname(argv[0]),"homes.conf"
+        dirname(argv[0]),"sftponly.conf"
     )
 
     config_section = 'main'
@@ -105,7 +105,7 @@ class HomesChecker():
             users = [u for u in users if u.pw_gid == self.group.gr_gid]
         if len(users) < self.minimum_users_count:
             log("too few users found... check configuration (got %u, need %u)" % (
-            len(users), self.minimum_users_count), True)
+            len(users), self.minimum_users_count))
             exit(1)
         self.users = users
 

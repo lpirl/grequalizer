@@ -12,7 +12,7 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
     """
 
     """
-    Path to users home directory, not expanded yet.
+    Path to users chroot directory, not expanded yet.
     """
     chroot_path = None
 
@@ -70,9 +70,9 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
                     "$g", cls.group_name_for_user(user)
                 )
 
-    def get_home_for_user(self, user):
+    def get_chroot_for_user(self, user):
         """
-        Expands variables in path to users home path.
+        Expands variables in path to users chroot path.
         """
         return self.__class__.expand_string_for_user(
             self.chroot_path,
@@ -131,7 +131,7 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
 
 class AbstractPerDirectoryCheck(AbstractCheckBase):
     """
-    Executes checks per existing directory in homes path.
+    Executes checks per existing directory in chroot path.
     """
 
     def __init__(self, *args, **kwargs):
@@ -151,7 +151,7 @@ class AbstractPerDirectoryCheck(AbstractCheckBase):
         def chroot_path_fail():
             ValueError(
                 "Sorry, at the moment checks for obsolete " +
-                "diretories can only be done for home_path's " +
+                "diretories can only be done for chroot_path's " +
                 "in the following form: /path/to/somewhere/$u"
             )
 
@@ -179,7 +179,7 @@ class AbstractPerDirectoryCheck(AbstractCheckBase):
 
     def _check(self):
         """
-        For every existing home directory, check if it's correct and
+        For every existing chroot directory, check if it's correct and
         correct if required and configured.
         """
         for directory in self.get_existing_directories():
@@ -192,14 +192,14 @@ class AbstractPerDirectoryCheck(AbstractCheckBase):
     @abc.abstractmethod
     def is_correct(self, directory):
         """
-        Checks correctness for a single user home directory.
+        Checks correctness for a single user chroot directory.
         """
         pass
 
     @abc.abstractmethod
     def correct(self, directory):
         """
-        Corrects a users home directory.
+        Corrects a users chroot directory.
         """
         pass
 
@@ -210,8 +210,8 @@ class AbstractPerUserCheck(AbstractCheckBase):
 
     def _check(self):
         """
-        For every user, check if home correct and correct if required
-        and configured.
+        For every user, check if the chroot directory is correct and
+        correct with respect to the configuration.
         """
         for user in self.users:
             if not self.is_correct(user):
@@ -223,14 +223,14 @@ class AbstractPerUserCheck(AbstractCheckBase):
     @abc.abstractmethod
     def is_correct(self, user):
         """
-        Checks correctness for a single user home directory.
+        Checks correctness for a single user chroot directory.
         """
         pass
 
     @abc.abstractmethod
     def correct(self, user):
         """
-        Corrects a users home directory.
+        Corrects a users chroot directory.
         """
         pass
 
@@ -269,7 +269,7 @@ class AbstractAllUsersAndAllDirectoriesCheck(AbstractPerDirectoryCheck):
     @abc.abstractmethod
     def correct(self, users, directories):
         """
-        Corrects home directory for a list of users and directories..
+        Corrects chroot directory for a list of users and directories..
         """
         pass
 

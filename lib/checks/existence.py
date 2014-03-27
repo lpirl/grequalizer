@@ -17,7 +17,7 @@ class ExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
         Returns a set of obsolete directories.
         """
         existing_directories = set(directories)
-        users_directories = set(self.get_home_for_user(u) for u in users)
+        users_directories = set(self.get_chroot_for_user(u) for u in users)
         return users_directories - existing_directories
 
     def correct(self, users, directories):

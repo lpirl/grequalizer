@@ -20,18 +20,18 @@ class PermissionCheck(AbstractPerUserCheck):
         self.permissions = int(self.options.get_str('octal_permissions'), 8)
 
     def correct(self, user):
-        home_path = self.get_home_for_user(user)
+        chroot_path = self.get_chroot_for_user(user)
         debug("setting permissions for %s to %o" % (
-            home_path, self.permissions))
-        if not isdir(home_path):
+            chroot_path, self.permissions))
+        if not isdir(chroot_path):
             debug("...directory does not exist. Doing nothing.")
             return
-        self.execute_safely(chmod, home_path, self.permissions)
+        self.execute_safely(chmod, chroot_path, self.permissions)
 
     def is_correct(self, user):
         debug("checking directory permissions for %s" % user.pw_name)
-        home_path = self.get_home_for_user(user)
-        if not isdir(home_path):
+        chroot_path = self.get_chroot_for_user(user)
+        if not isdir(chroot_path):
             debug("...directory does not exist. Ignoring.")
             return True
-        return S_IMODE(stat(home_path).st_mode) == self.permissions
+        return S_IMODE(stat(chroot_path).st_mode) == self.permissions

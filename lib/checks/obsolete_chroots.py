@@ -11,7 +11,7 @@ class ObsoleteChrootsCheck(AbstractAllUsersAndAllDirectoriesCheck):
     Checks if there are chroot directories that do not belong to a user anymore.
     """
 
-    config_section = "obsoletes"
+    config_section = "obsolete_chroots"
 
     order = 500
 

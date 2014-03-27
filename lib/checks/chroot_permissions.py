@@ -10,7 +10,7 @@ class ChrootPermissionCheck(AbstractPerUserCheck):
     Checks the chroot directories for all users for desired permissions.
     """
 
-    config_section = "permissions"
+    config_section = "chroot_permissions"
     permissions = None
 
     def post_init(self):

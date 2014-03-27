@@ -10,7 +10,7 @@ class ChrootGroupCheck(AbstractPerUserCheck):
     Checks the chroot directories for all users for desired group.
     """
 
-    config_section = "group"
+    config_section = "chroot_group"
     group_unexpanded = None
 
     def post_init(self):

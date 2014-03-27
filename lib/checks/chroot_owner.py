@@ -10,7 +10,7 @@ class ChrootOwnerCheck(AbstractPerUserCheck):
     Checks the chroot directories for all users for desired owner.
     """
 
-    config_section = "owner"
+    config_section = "chroot_owner"
     owner_unexpanded = None
 
     def post_init(self):

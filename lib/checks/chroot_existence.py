@@ -8,7 +8,7 @@ class ChrootExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
     Checks if a chroot directory for every user exists.
     """
 
-    config_section = "existence"
+    config_section = "chroot_existence"
 
     order = 100
 

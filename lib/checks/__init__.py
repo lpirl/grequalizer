@@ -2,6 +2,8 @@ import abc
 from os import walk
 from os.path import join as path_join
 
+from subprocess import call
+
 from grp import getgrgid
 
 from lib.util import debug, log
@@ -110,6 +112,13 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
         else:
             log("executing " + call_as_pretty_string())
             return function(*args, **kwargs)
+
+    def execute_subprocess_safely(self, *args, **kwargs):
+        """
+        Convenience wrapper around ``execute_safely`` to easily call
+        another program.
+        """
+        self.execute_safely(call, *args, **kwargs)
 
     def check(self):
         """
@@ -278,3 +287,4 @@ from .chroot_permissions import ChrootPermissionCheck
 from .chroot_owner import ChrootOwnerCheck
 from .chroot_group import ChrootGroupCheck
 from .obsolete_chroots import ObsoleteChrootsCheck
+from .user_home import UserHomeDirectoryCheck

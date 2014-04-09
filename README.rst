@@ -6,9 +6,9 @@ features
 
 * pure Python 3.3
 * users may be limited to a specific group
-* create **missing** chroot directories
-* archive and remove **obsolete** chroot directories
-* check and correct the following configurable properties
+* creates **missing** chroot directories
+* archives and removes **obsolete** chroot directories
+* checks and corrects the following configurable properties
 
   * of the chroot directories
 

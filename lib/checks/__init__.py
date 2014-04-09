@@ -1,9 +1,9 @@
 import abc
 from os import walk
 from os.path import join as path_join
-
+from pkgutil import walk_packages
+from inspect import getmembers, isclass
 from subprocess import call
-
 from grp import getgrgid
 
 from lib.util import debug, log
@@ -282,10 +282,17 @@ class AbstractAllUsersAndAllDirectoriesCheck(AbstractPerDirectoryCheck):
         """
         pass
 
-from .chroot_existence import ChrootExistenceCheck
-from .chroot_permissions import ChrootPermissionCheck
-from .chroot_owner import ChrootOwnerCheck
-from .chroot_group import ChrootGroupCheck
-from .obsolete_chroots import ObsoleteChrootsCheck
-from .user_home import UserHomeDirectoryCheck
-from .user_shell import UserShellCheck
+"""
+Import all checks dynamically
+Let's see when it crashes :)
+"""
+for module_loader, module_name, _ in walk_packages(__path__):
+    module = module_loader.find_module(module_name).load_module(module_name)
+    for cls_name, cls in getmembers(module):
+        if not isclass(cls):
+            continue
+        if not issubclass(cls, AbstractCheckBase):
+            continue
+        if cls_name.startswith("Abstract"):
+            continue
+        exec('from %s import *' % module_name)

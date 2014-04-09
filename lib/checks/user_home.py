@@ -3,7 +3,7 @@ from lib.checks import AbstractPerUserCheck
 class UserHomeDirectoryCheck(AbstractPerUserCheck):
     """
     Checks whether the home directory in passwd is set according to the
-    configuration..
+    configuration.
     """
 
     config_section = "user_home"

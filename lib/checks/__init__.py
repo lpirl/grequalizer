@@ -288,3 +288,4 @@ from .chroot_owner import ChrootOwnerCheck
 from .chroot_group import ChrootGroupCheck
 from .obsolete_chroots import ObsoleteChrootsCheck
 from .user_home import UserHomeDirectoryCheck
+from .user_shell import UserShellCheck

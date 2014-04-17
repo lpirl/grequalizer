@@ -2,6 +2,8 @@ from os import getcwd, mkdir
 from os.path import join as path_join, isfile, isdir, dirname
 from filecmp import cmp as compare_files
 from shutil import copy2 as copyfile, copymode
+from functools import lru_cache
+from subprocess import check_output
 
 from lib.util import debug
 from lib.checks import AbstractPerUserCheck
@@ -16,31 +18,45 @@ class FilesToChrootCheck(AbstractPerUserCheck):
 
     order = 5000
 
-    """
-    List of absolute path to files that should be present in each chroot.
-    """
-    unexpanded_paths = []
 
-    """
-    Dictionary of {user: file_name}
-    Where ``user`` is an objects in terms of Pythons built-in pwd module
-    and ``file_name`` an expanded path.
-    """
-    missing_files = {}
+    def load_unexpanded_paths_from_file(self, paths_file_name):
+        """
+        Loads lines (that do not start with an #)as paths into
+        ``unexpanded_paths``.
+        """
 
-    def post_init(self):
-        """
-        Load file paths from configured file into ``unexpanded_paths``.
-        """
-        paths_file_name = self.options.get_str('file_list')
         append_to_unexpanded_paths = self.unexpanded_paths.append
         for line in open(paths_file_name):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
             append_to_unexpanded_paths(line)
+
+    def post_init(self):
+        """
+        Load file paths from configured file into ``unexpanded_paths``.
+        """
+
+        self.unexpanded_paths = []
+        """
+        List of absolute path to files that should be present in each chroot.
+        """
+
+        self.missing_files = {}
+        """
+        Dictionary of {user: file_name}
+        Where ``user`` is an objects in terms of Pythons built-in pwd module
+        and ``file_name`` an expanded path.
+        """
+
+        self.load_unexpanded_paths_from_file(
+            self.options.get_str('file_list')
+        )
+
         debug(
-            "Loaded list of files for chroots: %r" % self.unexpanded_paths
+            "Loaded list of files for section '%s': %r" % (
+                self.config_section, self.unexpanded_paths
+            )
         )
 
     def get_src_and_dst_path(self, user, path):
@@ -58,33 +74,49 @@ class FilesToChrootCheck(AbstractPerUserCheck):
 
     def is_correct(self, user):
         """
-        Checks if all files listed in the configuration are identically
-        present in the chroot.
+        Inititalized ``self.missing_files[user]`` at the beginning and
+        evaluates it for its return value. The actual check is done by
+        ``self.check_existance_and_fill_missing_files``.
         """
         self.missing_files[user] = []
-        append_to_missing_files = self.missing_files[user].append
 
+        self.check_existance_and_fill_missing_files(user)
+
+        return not bool(self.missing_files[user])
+
+    def check_existance_and_fill_missing_files(self, user):
+        """
+        Does the actual check for ``is_correct`` and stores paths
+        of missing files in ``self.missing_files``
+        (what ``self.is_correct`` already initialized).
+        """
+        append_to_missing_files = self.missing_files[user].append
         for unexpanded_path in self.unexpanded_paths:
             file_path = self.expand_string_for_user(unexpanded_path, user)
-            src_file_path, dst_file_path = self.get_src_and_dst_path(
-                user, file_path
-            )
 
-            debug("Comparing '{0}s' and '{1}s'".format(
-                src_file_path, dst_file_path
-            ))
-
-            equal = False
-            if isfile(dst_file_path):
-                equal = iscompare_files(
-                    src_file_path, dst_file_path
-                )
-
-            if not equal:
+            if not self.equal_files_for_expanded_path(user, file_path):
                 debug("...not equal.")
                 append_to_missing_files(file_path)
 
-        return not bool(self.missing_files[user])
+    def equal_files_for_expanded_path(self, user, file_path):
+        """
+        Compares the corresponding file in chroot and real root.
+        Returns ``True`` if files are egual, ``False`` otherwise.
+        """
+        src_file_path, dst_file_path = self.get_src_and_dst_path(
+            user, file_path
+        )
+
+        debug("Comparing '{0}' and '{1}'".format(
+            src_file_path, dst_file_path
+        ))
+
+        if not isfile(dst_file_path):
+            return False
+
+        return compare_files(
+            src_file_path, dst_file_path
+        )
 
     def ensure_parent_directories_in_chroot(self, user, path):
         """
@@ -94,7 +126,7 @@ class FilesToChrootCheck(AbstractPerUserCheck):
         parent = dirname(path)
         src_dir, dst_dir = self.get_src_and_dst_path(
             user,
-            dirname(file_path)
+            dirname(path)
         )
 
         if src_dir == "/":
@@ -123,3 +155,60 @@ class FilesToChrootCheck(AbstractPerUserCheck):
                 src_file_path,
                 dst_file_path
             )
+
+class BinariesToChrootCheck(FilesToChrootCheck):
+    """
+    Ensures that all binaries listed in the configuration are identically
+    present in the chroot.
+    Further, required dynamic libraries will be copied to the chroot.
+    """
+
+    config_section = "chroot_binaries"
+
+    order = 5010
+
+    @lru_cache()
+    def get_dependendencies_for_expanded_path(self, binary_path):
+        """
+        Returns a list of paths to librarires that are required by
+        """
+        out = []
+        ldd_out = check_output(['ldd', binary_path]).decode('utf-8')
+        ldd_out_lines = ldd_out.split("\n")
+        for ldd_out_line in ldd_out_lines:
+
+            # ex:'	libacl.so.1 => /lib/x86_64-linux-gnu/libacl.so.1 (…)'
+            if '=> /' in ldd_out_line:
+                out.append(
+                    ldd_out_line.split(' ')[2]
+                )
+
+            # ex: "	/lib64/ld-linux-x86-64.so.2 (…)"
+            if ldd_out_line.startswith("\t/"):
+                out.append(
+                    ldd_out_line.split(" ")[0].strip()
+                )
+
+        debug("Dependencies for '{0}': {1}".format(binary_path, out))
+
+        return out
+
+    def check_existance_and_fill_missing_files(self, user):
+        """
+        Checks if all binaries listed in the configuration and their
+        required libraries are identically present in the chroot.
+        """
+        append_to_missing_files = self.missing_files[user].append
+
+        for unexpanded_path in self.unexpanded_paths:
+            binary_path = self.expand_string_for_user(unexpanded_path, user)
+
+            dependencies = self.get_dependendencies_for_expanded_path(
+                binary_path
+            )
+
+            for path in dependencies + [binary_path]:
+
+                if not self.equal_files_for_expanded_path(user, path):
+                    debug("...not equal.")
+                    append_to_missing_files(path)

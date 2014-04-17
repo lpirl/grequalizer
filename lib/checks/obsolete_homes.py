@@ -8,10 +8,10 @@ from lib.util import debug, log
 
 class ObsoleteChrootsCheck(AbstractAllUsersAndAllDirectoriesCheck):
     """
-    Checks if there are chroot directories that do not belong to a user anymore.
+    Checks if there are home directories that do not belong to a user anymore.
     """
 
-    config_section = "obsolete_chroots"
+    config_section = "obsolete_homes"
 
     order = 500
 
@@ -30,7 +30,7 @@ class ObsoleteChrootsCheck(AbstractAllUsersAndAllDirectoriesCheck):
         Returns a set of obsolete directories.
         """
         existing_directories = set(directories)
-        users_directories = set(self.get_chroot_for_user(u) for u in users)
+        users_directories = set(self.get_home_for_user(u) for u in users)
         return existing_directories - users_directories
 
     def is_correct(self, users, directories):
@@ -41,7 +41,7 @@ class ObsoleteChrootsCheck(AbstractAllUsersAndAllDirectoriesCheck):
 
     def correct(self, users, directories):
         """
-        Corrects chroot directory for a list of users and directories..
+        Corrects home directory for a list of users and directories..
         """
         obsoletes = self.obsolete_directories(users, directories)
         for directory_path in obsoletes:

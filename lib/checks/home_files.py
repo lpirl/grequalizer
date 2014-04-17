@@ -11,10 +11,10 @@ from lib.checks import AbstractPerUserCheck
 class FilesToChrootCheck(AbstractPerUserCheck):
     """
     Ensures that all files listed in the configuration are identically
-    present in the chroot.
+    present in the home.
     """
 
-    config_section = "chroot_files"
+    config_section = "home_files"
 
     order = 5000
 
@@ -39,7 +39,7 @@ class FilesToChrootCheck(AbstractPerUserCheck):
 
         self.unexpanded_paths = []
         """
-        List of absolute path to files that should be present in each chroot.
+        List of absolute path to files that should be present in each home.
         """
 
         self.missing_files = {}
@@ -63,13 +63,13 @@ class FilesToChrootCheck(AbstractPerUserCheck):
         """
         Returns a tuple of expanded strings:
         The first one is ``path`` relative to the real root and
-        the secound one is ``path`` relative to the chroot of the user.
+        the secound one is ``path`` relative to the home of the user.
         """
-        chroot_path = self.get_chroot_for_user(user)
+        home_path = self.get_home_for_user(user)
         relative_path = path.lstrip('/')
         return (
             path_join(getcwd(), path),
-            path_join(chroot_path, relative_path)
+            path_join(home_path, relative_path)
         )
 
     def is_correct(self, user):
@@ -100,7 +100,7 @@ class FilesToChrootCheck(AbstractPerUserCheck):
 
     def equal_files_for_expanded_path(self, user, file_path):
         """
-        Compares the corresponding file in chroot and real root.
+        Compares the corresponding file in home and real root.
         Returns ``True`` if files are egual, ``False`` otherwise.
         """
         src_file_path, dst_file_path = self.get_src_and_dst_path(
@@ -118,10 +118,10 @@ class FilesToChrootCheck(AbstractPerUserCheck):
             src_file_path, dst_file_path
         )
 
-    def ensure_parent_directories_in_chroot(self, user, path):
+    def ensure_parent_directories_in_home(self, user, path):
         """
         Ensures that all parent directories of ``path``
-        exist in the chroot, including the equality of the mode.
+        exist in the home, including the equality of the mode.
         """
         parent = dirname(path)
         src_dir, dst_dir = self.get_src_and_dst_path(
@@ -133,14 +133,14 @@ class FilesToChrootCheck(AbstractPerUserCheck):
             return
 
         if not isdir(dst_dir):
-            self.ensure_parent_directories_in_chroot(user, parent)
+            self.ensure_parent_directories_in_home(user, parent)
             self.execute_safely(mkdir, dst_dir)
 
         self.execute_safely(copymode, src_dir, dst_dir)
 
     def correct(self, user):
         """
-        Copies all missing files to the chroot,
+        Copies all missing files to the home,
         preserving parent direcotries, rights and ownership.
         """
         for missing_file in self.missing_files[user]:
@@ -148,7 +148,7 @@ class FilesToChrootCheck(AbstractPerUserCheck):
                 user, missing_file
             )
 
-            self.ensure_parent_directories_in_chroot(user, src_file_path)
+            self.ensure_parent_directories_in_home(user, src_file_path)
 
             self.execute_safely(
                 copyfile,
@@ -161,11 +161,11 @@ class FilesToChrootCheck(AbstractPerUserCheck):
 class BinariesToChrootCheck(FilesToChrootCheck):
     """
     Ensures that all binaries listed in the configuration are identically
-    present in the chroot.
-    Further, required dynamic libraries will be copied to the chroot.
+    present in the home.
+    Further, required dynamic libraries will be copied to the home.
     """
 
-    config_section = "chroot_binaries"
+    config_section = "home_binaries_with_libs"
 
     order = 5010
 
@@ -198,7 +198,7 @@ class BinariesToChrootCheck(FilesToChrootCheck):
     def check_existance_and_fill_missing_files(self, user):
         """
         Checks if all binaries listed in the configuration and their
-        required libraries are identically present in the chroot.
+        required libraries are identically present in the home.
         """
         append_to_missing_files = self.missing_files[user].append
 

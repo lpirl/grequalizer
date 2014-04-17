@@ -23,7 +23,7 @@ class ChecksRunner():
         Initializes instance variables and esp. sets the config file.
         """
 
-        self.chroot_path = None
+        self.home_path = None
         """see full config example for explanation"""
 
         self.limit_to_group = None
@@ -75,13 +75,13 @@ class ChecksRunner():
         options = self.configs[self.config_section]
 
         required_fields = (
-            'chroot_path',
+            'home_path',
             'simulate',
             'limit_to_primary_group',
             'minimum_users_count',
         )
 
-        self.chroot_path = options.get_str('chroot_path')
+        self.home_path = options.get_str('home_path')
         self.simulate = options.get_bool('simulate')
         self.limit_to_group = options.get_bool('limit_to_primary_group')
         if self.limit_to_group:
@@ -125,7 +125,7 @@ class ChecksRunner():
         for check_cls in ChecksRunner.get_checks_sorted():
             debug("doing check for %s" % str(check_cls))
             check = check_cls(
-                self.chroot_path,
+                self.home_path,
                 self.users,
                 self.simulate,
                 self.configs[check_cls.config_section]

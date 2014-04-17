@@ -15,15 +15,15 @@ class ObsoleteChrootsCheck(AbstractAllUsersAndAllDirectoriesCheck):
 
     order = 500
 
-    trash_path = None
-    octal_permissions = None
-
     def post_init(self):
         """
         Stores some options as property for faster access.
         """
         self.trash_path = self.options.get_str('trash_path')
+        """root directory where archived homes will be put"""
+
         self.octal_permissions = self.options.get_int('trash_octal_permissions')
+        """octal permission mask for files in trash"""
 
     def obsolete_directories(self, users, directories):
         """

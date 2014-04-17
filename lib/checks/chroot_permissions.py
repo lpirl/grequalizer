@@ -11,13 +11,14 @@ class ChrootPermissionCheck(AbstractPerUserCheck):
     """
 
     config_section = "chroot_permissions"
-    permissions = None
 
     def post_init(self):
         """
         Stores some options as property for faster access.
         """
+
         self.permissions = int(self.options.get_str('octal_permissions'), 8)
+        """target octal permission mask for home directories"""
 
     def correct(self, user):
         chroot_path = self.get_chroot_for_user(user)

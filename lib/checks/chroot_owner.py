@@ -11,13 +11,14 @@ class ChrootOwnerCheck(AbstractPerUserCheck):
     """
 
     config_section = "chroot_owner"
-    owner_unexpanded = None
 
     def post_init(self):
         """
         Stores some options as property for faster access.
         """
+
         self.owner_unexpanded = self.options.get_str('owner')
+        """target owner for home directories"""
 
     def owner_uid_for_user(self, user):
         """

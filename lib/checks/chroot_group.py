@@ -11,13 +11,14 @@ class ChrootGroupCheck(AbstractPerUserCheck):
     """
 
     config_section = "chroot_group"
-    group_unexpanded = None
 
     def post_init(self):
         """
         Stores some options as property for faster access.
         """
+
         self.group_unexpanded = self.options.get_str('group')
+        """target group or home directories"""
 
     def group_uid_for_user(self, user):
         """

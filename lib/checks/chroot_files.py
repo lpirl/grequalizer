@@ -156,6 +156,8 @@ class FilesToChrootCheck(AbstractPerUserCheck):
                 dst_file_path
             )
 
+        self.missing_files = {}
+
 class BinariesToChrootCheck(FilesToChrootCheck):
     """
     Ensures that all binaries listed in the configuration are identically

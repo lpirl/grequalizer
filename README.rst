@@ -1,4 +1,5 @@
-# still under development - don't use this yet #
+still under development - don't use this yet
+============================================
 
 This script aids in managing the users and their chroot directories
 of a sftp-only server.

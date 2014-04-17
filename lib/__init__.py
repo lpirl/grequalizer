@@ -16,10 +16,11 @@ class ChecksRunner():
     """
 
     config_section = 'main'
+    """section where configration will be retreived from"""
 
     def __init__(self, config_file):
         """
-        Accepts and sets alternative config file, if provided.
+        Initializes instance variables and esp. sets the config file.
         """
 
         self.chroot_path = None
@@ -41,7 +42,10 @@ class ChecksRunner():
         """see full config example for explanation"""
 
         self.configs_filename = config_file
-        configs = None
+        """path to configuration file"""
+
+        self.configs = None
+        """ConfigDict with configuration loaded from self.config_section"""
 
     def auto(self):
         """

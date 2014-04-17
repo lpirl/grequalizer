@@ -39,7 +39,7 @@ You'll have to implement either of the interfaces specified in
 * ``AbstractAllUsersAndAllDirectoriesCheck``
 
 Please refer to the existing checks as examples
-(for example, ``home_permissions.py`` is a good point to start).
+(``home_permissions.py`` might be a good point to start).
 
 Probably you also want to extend the configuration file with the symbols
 you need.

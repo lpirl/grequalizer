@@ -123,7 +123,14 @@ class ChecksRunner():
 
     def do_checks(self):
         for check_cls in ChecksRunner.get_checks_sorted():
-            debug("doing check for %s" % str(check_cls))
+
+            options = self.configs.get(check_cls.config_section, None)
+
+            if not options:
+                debug("no configuration for %s! Skipping." % check_cls)
+                continue
+
+            debug("doing check for %s" % check_cls)
             check = check_cls(
                 self.home_path,
                 self.users,

@@ -20,7 +20,7 @@ class UserShellCheck(AbstractPerUserCheck):
         Checks correctness for a single users shell passwd entry.
         """
         desired_path = self.get_expanded_shell_for_user(user)
-        return user.pw_dir == desired_path
+        return user.pw_shell == desired_path
 
     def correct(self, user):
         """

@@ -13,36 +13,36 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
     Base class for all checks
     """
 
-    """
-    Path to users chroot directory, not expanded yet.
-    """
-    chroot_path = None
-
-    """
-    If True, nothing should ever be done.
-    """
-    simulate = None
-
-    """
-    Configuration options for this check.
-
-    All options from section defined in attribute 'config_section'.
-    """
-    options = None
-
+    order = 1000
     """
     Order when this check should be executed.
 
     Lower numbers are executed earlier.
     """
-    order = 1000
 
     def __init__(self, chroot_path, users, simulate, options):
+
         self.chroot_path = chroot_path
+        """
+        Path to users chroot directory, not expanded yet.
+        """
+
         self.users = users
+        """see full config example for explanation"""
+
         self.simulate = simulate
+        """If True, nothing should ever be done."""
+
         self.options = options
+        """
+        Configuration options for this check.
+
+        All options from section defined in attribute 'config_section'.
+        """
+
         self.post_init()
+        """hook for subclasses"""
+
 
     def post_init(self):
         """

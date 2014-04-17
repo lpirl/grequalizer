@@ -1,6 +1,3 @@
-still under development - don't use this yet
-============================================
-
 This tool helps you to manage the consistency of user of a specific
 UNIX user group.
 

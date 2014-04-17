@@ -76,7 +76,7 @@ class ObsoleteChrootsCheck(AbstractAllUsersAndAllDirectoriesCheck):
             basename(directory_path)
         )
 
-        if not archive_path:
+        if not archive_path and not self.simulate:
             log(u"ERROR: something went wrong - no archive " +
                 "file name found after archive creation!")
             return False

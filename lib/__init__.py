@@ -15,26 +15,33 @@ class ChecksRunner():
     Class for doing all the administrative work for checking users homes.
     """
 
-    chroot_path = None
-    limit_to_group = None
-    users = None
-    group = None
-    simulate = None
-    minimum_users_count = None
-
-    configs = None
-    configs_filename = path_join(
-        dirname(argv[0]),"sftponly.conf"
-    )
-
     config_section = 'main'
 
-    def __init__(self, config_file=None):
+    def __init__(self, config_file):
         """
         Accepts and sets alternative config file, if provided.
         """
-        if config_file:
-            self.configs_filename = config_file
+
+        self.chroot_path = None
+        """see full config example for explanation"""
+
+        self.limit_to_group = None
+        """see full config example for explanation"""
+
+        self.users = None
+        """see full config example for explanation"""
+
+        self.group = None
+        """see full config example for explanation"""
+
+        self.simulate = None
+        """see full config example for explanation"""
+
+        self.minimum_users_count = None
+        """see full config example for explanation"""
+
+        self.configs_filename = config_file
+        configs = None
 
     def auto(self):
         """

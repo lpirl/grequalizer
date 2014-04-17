@@ -5,7 +5,7 @@ from grp import getgrnam
 from lib.checks import AbstractPerUserCheck
 from lib.util import debug
 
-class ChrootGroupCheck(AbstractPerUserCheck):
+class HomeGroupCheck(AbstractPerUserCheck):
     """
     Checks the home directories for all users for desired group.
     """

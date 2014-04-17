@@ -8,7 +8,7 @@ from subprocess import check_output
 from lib.util import debug
 from lib.checks import AbstractPerUserCheck
 
-class FilesToChrootCheck(AbstractPerUserCheck):
+class FilesToHomeCheck(AbstractPerUserCheck):
     """
     Ensures that all files listed in the configuration are identically
     present in the home.
@@ -158,7 +158,7 @@ class FilesToChrootCheck(AbstractPerUserCheck):
 
         self.missing_files = {}
 
-class BinariesToChrootCheck(FilesToChrootCheck):
+class BinariesWithLibrariesToHomeCheck(FilesToHomeCheck):
     """
     Ensures that all binaries listed in the configuration are identically
     present in the home.

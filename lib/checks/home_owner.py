@@ -5,7 +5,7 @@ from pwd import getpwnam
 from lib.checks import AbstractPerUserCheck
 from lib.util import debug
 
-class ChrootOwnerCheck(AbstractPerUserCheck):
+class HomeOwnerCheck(AbstractPerUserCheck):
     """
     Checks the home directories for all users for desired owner.
     """

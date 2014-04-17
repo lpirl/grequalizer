@@ -5,7 +5,7 @@ from os.path import isdir
 from lib.checks import AbstractPerUserCheck
 from lib.util import debug
 
-class ChrootPermissionCheck(AbstractPerUserCheck):
+class HomePermissionCheck(AbstractPerUserCheck):
     """
     Checks the home directories for all users for desired permissions.
     """

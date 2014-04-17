@@ -3,7 +3,7 @@ from os import mkdir
 from lib.checks import AbstractAllUsersAndAllDirectoriesCheck
 from lib.util import debug
 
-class ChrootExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
+class HomeExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
     """
     Checks if a home directory for every user exists.
     """

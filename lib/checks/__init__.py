@@ -117,6 +117,7 @@ class AbstractCheckBase(metaclass=abc.ABCMeta):
         """
         Convenience wrapper around ``execute_safely`` to easily call
         another program.
+        Arguments as for ``subprocess.Popen``.
         """
         self.execute_safely(call, *args, **kwargs)
 

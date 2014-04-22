@@ -26,9 +26,9 @@ class UserShellCheck(AbstractPerUserCheck):
         """
         Corrects a users shell passwd entry.
         """
-        self.execute_subprocess_safely(
+        self.execute_subprocess_safely([
             'usermod',
             '-s',
             self.get_expanded_shell_for_user(user),
             user.pw_name
-        )
+        ])

@@ -26,9 +26,9 @@ class UserHomeDirectoryCheck(AbstractPerUserCheck):
         """
         Corrects a users home directory passwd entry.
         """
-        self.execute_subprocess_safely(
+        self.execute_subprocess_safely([
             'usermod',
             '-d',
             self.get_expanded_home_path_for_user(user),
             user.pw_name
-        )
+        ])

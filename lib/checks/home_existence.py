@@ -23,7 +23,7 @@ class HomeExistenceCheck(AbstractAllUsersAndAllDirectoriesCheck):
     def correct(self, users, directories):
         for directory in self.missing_directories(users, directories):
             debug("creating missing directory '%s'" % directory)
-            self.execute_safely(mkdir, directory, mode=700)
+            self.execute_safely(mkdir, directory, 700)
 
     def is_correct(self, users, directories):
         debug("checking for missing directories")

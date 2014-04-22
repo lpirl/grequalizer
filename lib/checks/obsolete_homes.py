@@ -77,7 +77,7 @@ class ObsoleteHomesCheck(AbstractAllUsersAndAllDirectoriesCheck):
         )
 
         if not archive_path and not self.simulate:
-            log(u"ERROR: something went wrong - no archive " +
+            log("ERROR: something went wrong - no archive " +
                 "file name found after archive creation!")
             return False
 

@@ -1,4 +1,4 @@
-This tool helps you to manage the consistency of user of a specific
+The **gr**\ oup **equalizer** helps you to manage the consistency of user of a specific
 UNIX user group.
 
 This includes their accounts as well as their home directories.

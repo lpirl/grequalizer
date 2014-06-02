@@ -29,11 +29,8 @@ usage
 -----
 
 #. Check out the repository
-#. Read and adapt ``grequalizer.conf`` carefully
-
-    for easier updating, put your modified configuration into a new
-    file
-
+#. Copy ``example_confs/full.conf`` to a place of your preference
+#. Read and adapt your configuration carefully
 #. Backup
 #. In your configuration, set ``simulate = yes``
 #. Execute ``python3.3 -O grequalizer.py your_configuration.conf``

@@ -19,11 +19,13 @@ class FilesToHomeCheck(AbstractPerUserCheck):
     order = 5000
 
 
-    def load_unexpanded_paths_from_file(self, paths_file_name):
+    def load_unexpanded_paths_from_file(self):
         """
         Loads lines (that do not start with an #)as paths into
         ``unexpanded_paths``.
         """
+
+        paths_file_name = self.options.get_str('file_list')
 
         append_to_unexpanded_paths = self.unexpanded_paths.append
         for line in open(paths_file_name):
@@ -31,6 +33,12 @@ class FilesToHomeCheck(AbstractPerUserCheck):
             if not line or line.startswith('#'):
                 continue
             append_to_unexpanded_paths(line)
+
+        debug(
+            "Loaded list of files for section '%s': %r" % (
+                self.config_section, self.unexpanded_paths
+            )
+        )
 
     def post_init(self):
         """
@@ -48,16 +56,6 @@ class FilesToHomeCheck(AbstractPerUserCheck):
         Where ``user`` is an objects in terms of Pythons built-in pwd module
         and ``file_name`` an expanded path.
         """
-
-        self.load_unexpanded_paths_from_file(
-            self.options.get_str('file_list')
-        )
-
-        debug(
-            "Loaded list of files for section '%s': %r" % (
-                self.config_section, self.unexpanded_paths
-            )
-        )
 
     def get_src_and_dst_path(self, user, path):
         """
@@ -90,6 +88,8 @@ class FilesToHomeCheck(AbstractPerUserCheck):
         of missing files in ``self.missing_files``
         (what ``self.is_correct`` already initialized).
         """
+        self.load_unexpanded_paths_from_file()
+
         append_to_missing_files = self.missing_files[user].append
         for unexpanded_path in self.unexpanded_paths:
             file_path = self.expand_string_for_user(unexpanded_path, user)
@@ -200,6 +200,8 @@ class BinariesWithLibrariesToHomeCheck(FilesToHomeCheck):
         Checks if all binaries listed in the configuration and their
         required libraries are identically present in the home.
         """
+        self.load_unexpanded_paths_from_file()
+
         append_to_missing_files = self.missing_files[user].append
 
         for unexpanded_path in self.unexpanded_paths:

@@ -10,7 +10,7 @@ from lib.util import log
 def help_and_exit():
     log("script for maintaining an UNIX groups accounts and home directories")
     log("")
-    log("usage: [python3] ./sftponly.py [config file]")
+    log("usage: [python3] %s [config file]" % argv[0])
     log("  explicit call of 'python3' turns on debug")
     exit(0)
 

@@ -144,9 +144,11 @@ class FilesToHomeCheck(AbstractPerUserCheck):
 
             self.ensure_parent_directories_in_home(user, src_file_path)
 
-            # cp -r allows copying of devices
-            self.execute_safely(check_call, ["cp", "-rf", "--dereference",
-                                src_file_path, dst_file_path])
+            # we are using rsync and not cp, since cp won't overwrite
+            # a regular file with a special file (???)
+            self.execute_safely(check_call, ["rsync", "-a",
+                                "--no-recursive", src_file_path,
+                                dst_file_path])
 
         self.missing_files = {}
 

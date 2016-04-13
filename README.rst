@@ -1,16 +1,16 @@
-The **gr**\ oup **equalizer** helps you to manage the consistency of user of a specific
+The **gr**\ oup **equalizer** helps you to manage the consistency of a 
 UNIX user group.
 
-This includes their accounts as well as their home directories.
+This includes its user's accounts as well as their home directories.
 
 features
 --------
 
 * pure Python 3.3
-* users can be limited to a specific group
+* users to consider are defined by a UNIX user group
 * a minimum count of users is configurable
-  (so that grequalizer does not rampage your system upon NIS outages
-  for exmaple)
+  (so that - for exmaple - grequalizer does not rampage your system
+  upon NIS outages)
 
 available plug-ins
 ******************
@@ -25,8 +25,30 @@ available plug-ins
 * check and correct the shell of the accounts (passwd)
 * check and correct the home directory of the accounts (passwd)
 
-new plug-ins
-************
+usage
+-----
+
+#. Check out the repository
+#. Copy ``example_confs/full.conf`` to a place of your preference
+#. Read and adapt your configuration carefully
+#. Backup
+#. In your configuration, set ``simulate = yes``
+#. Execute ``python3.3 -O grequalizer.py your_configuration.conf``
+   and check the output
+#. If you agree with the actions printed there, set ``simulate = no``
+#. Re-run ``python3.3 -O grequalizer.py your_configuration.conf``
+#. Check if everything went well
+#. Put a line like this in your crontab (``crontab -e``):
+
+    ``42 23 * * * python3.3 -O /wherever/grequalizer/grequalizer.py /wherever/grequalizer/your_configuration.conf``
+
+    or, if you are not willing to receive mails with what has been done:
+
+    ``42 23 * * * (python3.3 -O /wherever/homes/grequalizer.py /wherever/grequalizer/your_configuration.conf) > /dev/null``
+
+
+how to add plug-ins
+-------------------
 
 You'll have to implement either of the interfaces specified in
 ``lib/checks/__init__.py``:
@@ -43,30 +65,6 @@ you need.
 
 Save your implementation in the module/directory ``lib.checks``
 and get started.
-
-usage
------
-
-#. Check out the repository
-#. Read and adapt ``grequalizer.conf`` carefully
-
-    for easier updating, put your modified configuration into a new
-    file
-
-#. Backup
-#. In your configuration, set ``simulate = yes``
-#. Execute ``python3.3 -O grequalizer.py your_configuration.conf``
-   and check the output
-#. If you agree with the actions printed there, set ``simulate = no``
-#. Re-run ``python3.3 -O grequalizer.py your_configuration.conf``
-#. Check if everything went well
-#. Put a line like this in your crontab (``crontab -e``):
-
-    ``42 23 * * * python3.3 -O /wherever/grequalizer/grequalizer.py /wherever/grequalizer/your_configuration.conf``
-
-    or, if you are not willing to receive mails with what has been done:
-
-    ``42 23 * * * (python3.3 -O /wherever/homes/grequalizer.py /wherever/grequalizer/your_configuration.conf) > /dev/null``
 
 contact…
 --------

@@ -145,7 +145,7 @@ class FilesToHomeCheck(AbstractPerUserCheck):
             self.ensure_parent_directories_in_home(user, src_file_path)
 
             # cp -r allows copying of devices
-            self.execute_safely(check_call, ["cp", "-r", "--dereference",
+            self.execute_safely(check_call, ["cp", "-rf", "--dereference",
                                 src_file_path, dst_file_path])
 
         self.missing_files = {}

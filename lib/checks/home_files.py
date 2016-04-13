@@ -1,9 +1,9 @@
 from os import getcwd, mkdir
 from os.path import join as path_join, isfile, isdir, dirname
 from filecmp import cmp as compare_files
-from shutil import copy2 as copyfile, copymode
+from shutil import copymode
 from functools import lru_cache
-from subprocess import check_output
+from subprocess import check_output, check_call
 
 from lib.util import debug
 from lib.checks import AbstractPerUserCheck
@@ -144,11 +144,9 @@ class FilesToHomeCheck(AbstractPerUserCheck):
 
             self.ensure_parent_directories_in_home(user, src_file_path)
 
-            self.execute_safely(
-                copyfile,
-                src_file_path,
-                dst_file_path
-            )
+            # cp -r allows copying of devices
+            self.execute_safely(check_call, ["cp", "-r", "--dereference",
+                                src_file_path, dst_file_path])
 
         self.missing_files = {}
 

@@ -12,13 +12,15 @@ class HomeOwnerCheck(AbstractPerUserCheck):
 
     config_section = "home_owner"
 
-    def post_init(self):
+    @property
+    def owner_unexpanded(self):
         """
-        Stores some options as property for faster access.
-        """
+        target owner for home directories
 
-        self.owner_unexpanded = self.options.get_str('owner')
-        """target owner for home directories"""
+        Lazily load attribute in order to allow it to be not configured
+        (when check is disabled).
+        """
+        return self.options.get_str('owner')
 
     def owner_uid_for_user(self, user):
         """

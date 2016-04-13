@@ -12,13 +12,15 @@ class HomeGroupCheck(AbstractPerUserCheck):
 
     config_section = "home_group"
 
-    def post_init(self):
+    @property
+    def group_unexpanded(self):
         """
-        Stores some options as property for faster access.
-        """
+        target group or home directories
 
-        self.group_unexpanded = self.options.get_str('group')
-        """target group or home directories"""
+        Lazily load attribute in order to allow it to be not configured
+        (when check is disabled).
+        """
+        return self.options.get_str('group')
 
     def group_uid_for_user(self, user):
         """

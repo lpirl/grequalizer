@@ -15,15 +15,25 @@ class ObsoleteHomesCheck(AbstractAllUsersAndAllDirectoriesCheck):
 
     order = 500
 
-    def post_init(self):
+    @property
+    def trash_path(self):
         """
-        Stores some options as property for faster access.
-        """
-        self.trash_path = self.options.get_str('trash_path')
-        """root directory where archived homes will be put"""
+        root directory where archived homes will be put
 
-        self.octal_permissions = self.options.get_int('trash_octal_permissions')
-        """octal permission mask for files in trash"""
+        Lazily load attribute in order to allow it to be not configured
+        (when check is disabled).
+        """
+        return self.options.get_str('trash_path')
+
+    @property
+    def octal_permissions(self):
+        """
+        octal permission mask for files in trash
+
+        Lazily load attribute in order to allow it to be not configured
+        (when check is disabled).
+        """
+        return self.options.get_int('trash_octal_permissions')
 
     def obsolete_directories(self, users, directories):
         """

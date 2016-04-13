@@ -12,13 +12,15 @@ class HomePermissionCheck(AbstractPerUserCheck):
 
     config_section = "home_permissions"
 
-    def post_init(self):
+    @property
+    def permissions(self):
         """
-        Stores some options as property for faster access.
-        """
+        desired permissions for home directories
 
-        self.permissions = int(self.options.get_str('octal_permissions'), 8)
-        """target octal permission mask for home directories"""
+        Lazily load attribute in order to allow it to be not configured
+        (when check is disabled).
+        """
+        return int(self.options.get_str('octal_permissions'), 8)
 
     def correct(self, user):
         home_path = self.get_home_for_user(user)

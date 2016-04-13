@@ -18,28 +18,26 @@ class FilesToHomeCheck(AbstractPerUserCheck):
 
     order = 5000
 
-
-    def load_unexpanded_paths_from_file(self, paths_file_name):
+    @property
+    def unexpanded_paths(self):
         """
-        Loads lines (that do not start with an #)as paths into
-        ``unexpanded_paths``.
-        """
+        List of absolute path to files that should be present in each home.
 
-        append_to_unexpanded_paths = self.unexpanded_paths.append
+        Lazily load attribute in order to allow it to be not configured
+        (when check is disabled).
+        """
+        paths_file_name = self.options.get_str('file_list')
+        paths = []
         for line in open(paths_file_name):
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
-            append_to_unexpanded_paths(line)
+            paths.append(line)
+        return paths
 
     def post_init(self):
         """
         Load file paths from configured file into ``unexpanded_paths``.
-        """
-
-        self.unexpanded_paths = []
-        """
-        List of absolute path to files that should be present in each home.
         """
 
         self.missing_files = {}
@@ -48,10 +46,6 @@ class FilesToHomeCheck(AbstractPerUserCheck):
         Where ``user`` is an objects in terms of Pythons built-in pwd module
         and ``file_name`` an expanded path.
         """
-
-        self.load_unexpanded_paths_from_file(
-            self.options.get_str('file_list')
-        )
 
         debug(
             "Loaded list of files for section '%s': %r" % (

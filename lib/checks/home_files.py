@@ -146,7 +146,8 @@ class FilesToHomeCheck(AbstractPerUserCheck):
 
             # we are using rsync and not cp, since cp won't overwrite
             # a regular file with a special file (???)
-            self.execute_safely(check_call, ["rsync", "-a",
+            #   --copy-links should be named --dereference ;)
+            self.execute_safely(check_call, ["rsync", "-a", "--copy-links",
                                 "--no-recursive", src_file_path,
                                 dst_file_path])
 
